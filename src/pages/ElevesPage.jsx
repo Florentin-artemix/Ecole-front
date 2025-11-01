@@ -1,0 +1,458 @@
+import React, { useState, useEffect } from 'react';
+import { eleveService } from '../services/eleveService';
+import { SEXE_OPTIONS } from '../utils/enums';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
+import SuccessMessage from '../components/common/SuccessMessage';
+import DataImporter from '../components/common/DataImporter';
+import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
+
+export default function ElevesPage() {
+  const [eleves, setEleves] = useState([]);
+  const [filteredEleves, setFilteredEleves] = useState([]);
+  const [selectedClasse, setSelectedClasse] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingEleve, setEditingEleve] = useState(null);
+  const [formData, setFormData] = useState({
+    nomComplet: '',
+    nom: '',
+    postnom: '',
+    prenom: '',
+    sexe: '',
+    dateNaissance: '',
+    lieuNaissance: '',
+    numeroPermanent: '',
+    classe: '',
+    ecole: 'Institut Umoja',
+    code: 'EP1234',
+    ville: 'Bukavu',
+    commune_territoire: 'Bagira',
+  });
+
+  useEffect(() => {
+    loadEleves();
+  }, []);
+
+  const loadEleves = async () => {
+    try {
+      const response = await eleveService.getAllEleves();
+      const elevesData = response.data || [];
+      setEleves(elevesData);
+      setFilteredEleves(elevesData);
+    } catch (error) {
+      setError('Erreur lors du chargement des élèves');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filtrer les élèves par classe
+  useEffect(() => {
+    if (selectedClasse === '') {
+      setFilteredEleves(eleves);
+    } else {
+      setFilteredEleves(eleves.filter(eleve => eleve.classe === selectedClasse));
+    }
+  }, [selectedClasse, eleves]);
+
+  // Obtenir la liste unique des classes
+  const classes = [...new Set(eleves.map(eleve => eleve.classe))].filter(Boolean).sort();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      // Construire nomComplet si nom/postnom/prenom fournis
+      let dataToSend = { ...formData };
+      if (formData.nom && formData.postnom && formData.prenom) {
+        dataToSend.nomComplet = `${formData.nom} ${formData.postnom} ${formData.prenom}`;
+      }
+
+      if (editingEleve) {
+        await eleveService.updateEleve(editingEleve.id, dataToSend);
+        setSuccess('Élève modifié avec succès');
+      } else {
+        await eleveService.createEleve(dataToSend);
+        setSuccess('Élève créé avec succès');
+      }
+      loadEleves();
+      closeModal();
+    } catch (error) {
+      setError(error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    }
+  };
+
+  const handleImportJSON = async (data) => {
+    try {
+      const dataArray = Array.isArray(data) ? data : [data];
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const item of dataArray) {
+        try {
+          // Construire nomComplet si besoin
+          if (item.nom && item.postnom && item.prenom && !item.nomComplet) {
+            item.nomComplet = `${item.nom} ${item.postnom} ${item.prenom}`;
+          }
+          await eleveService.createEleve(item);
+          successCount++;
+        } catch (err) {
+          errorCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        setSuccess(`${successCount} élève(s) importé(s) avec succès${errorCount > 0 ? `, ${errorCount} erreur(s)` : ''}`);
+        loadEleves();
+      } else {
+        setError('Aucun élève n\'a pu être importé');
+      }
+    } catch (error) {
+      setError('Erreur lors de l\'importation');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet élève ?')) return;
+
+    try {
+      await eleveService.deleteEleve(id);
+      setSuccess('Élève supprimé avec succès');
+      loadEleves();
+    } catch (error) {
+      setError('Erreur lors de la suppression');
+    }
+  };
+
+  const openModal = (eleve = null) => {
+    if (eleve) {
+      setEditingEleve(eleve);
+      setFormData(eleve);
+    } else {
+      setEditingEleve(null);
+      setFormData({
+        nomComplet: '',
+        nom: '',
+        postnom: '',
+        prenom: '',
+        sexe: '',
+        dateNaissance: '',
+        lieuNaissance: '',
+        numeroPermanent: '',
+        classe: '',
+        ecole: 'Institut Umoja',
+        code: 'EP1234',
+        ville: 'Bukavu',
+        commune_territoire: 'Bagira',
+      });
+    }
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingEleve(null);
+    setFormData({
+      nomComplet: '',
+      nom: '',
+      postnom: '',
+      prenom: '',
+      sexe: '',
+      dateNaissance: '',
+      lieuNaissance: '',
+      numeroPermanent: '',
+      classe: '',
+      ecole: 'Institut Umoja',
+      code: 'EP1234',
+      ville: 'Bukavu',
+      commune_territoire: 'Bagira',
+    });
+  };
+
+  if (loading) return <LoadingSpinner fullScreen />;
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Gestion des Élèves</h1>
+          <p className="text-gray-600 mt-2">
+            {selectedClasse 
+              ? `Classe: ${selectedClasse} - ${filteredEleves.length} élève(s)` 
+              : `${eleves.length} élève(s) inscrit(s)`}
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <DataImporter onImport={handleImportJSON} type="eleves" />
+          <button onClick={() => openModal()} className="btn btn-primary flex items-center gap-2">
+            <PlusIcon className="w-5 h-5" />
+            Ajouter un Élève
+          </button>
+        </div>
+      </div>
+
+      {/* Filtre par classe */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="flex items-center gap-4">
+          <label className="font-medium text-gray-700">Filtrer par classe:</label>
+          <select
+            value={selectedClasse}
+            onChange={(e) => setSelectedClasse(e.target.value)}
+            className="input w-64"
+          >
+            <option value="">Toutes les classes</option>
+            {classes.map((classe) => (
+              <option key={classe} value={classe}>
+                {classe}
+              </option>
+            ))}
+          </select>
+          {selectedClasse && (
+            <button
+              onClick={() => setSelectedClasse('')}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Réinitialiser
+            </button>
+          )}
+        </div>
+      </div>
+
+      {error && <ErrorMessage message={error} onClose={() => setError('')} />}
+      {success && <SuccessMessage message={success} onClose={() => setSuccess('')} />}
+
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-800 text-white">
+              <tr>
+                <th className="px-6 py-4 text-left font-semibold">Nom Complet</th>
+                <th className="px-6 py-4 text-left font-semibold">Sexe</th>
+                <th className="px-6 py-4 text-left font-semibold">Date de Naissance</th>
+                <th className="px-6 py-4 text-left font-semibold">Lieu de Naissance</th>
+                <th className="px-6 py-4 text-left font-semibold">N° Permanent</th>
+                <th className="px-6 py-4 text-left font-semibold">Classe</th>
+                <th className="px-6 py-4 text-center font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredEleves.map((eleve, index) => {
+                const nomComplet = eleve.nomComplet || 
+                  (eleve.nom && eleve.postnom && eleve.prenom 
+                    ? `${eleve.nom} ${eleve.postnom} ${eleve.prenom}` 
+                    : `Élève #${eleve.id}`);
+                return (
+                  <tr key={eleve.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-6 py-4 font-medium text-gray-900">{nomComplet}</td>
+                    <td className="px-6 py-4">{eleve.sexe === 'M' ? 'Masculin' : 'Féminin'}</td>
+                    <td className="px-6 py-4">{eleve.dateNaissance}</td>
+                    <td className="px-6 py-4">{eleve.lieuNaissance}</td>
+                    <td className="px-6 py-4">{eleve.numeroPermanent}</td>
+                    <td className="px-6 py-4">
+                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                        {eleve.classe}
+                      </span>
+                    </td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => openModal(eleve)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                      >
+                        <PencilIcon className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(eleve.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingEleve ? 'Modifier l\'Élève' : 'Ajouter un Élève'}
+              </h2>
+              <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Nom *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.nom}
+                    onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                    className="input"
+                    placeholder="Ex: KABONGO"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Post-Nom *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.postnom}
+                    onChange={(e) => setFormData({ ...formData, postnom: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Florent"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Prénom *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.prenom}
+                    onChange={(e) => setFormData({ ...formData, prenom: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Jean"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Sexe *</label>
+                  <select
+                    required
+                    value={formData.sexe}
+                    onChange={(e) => setFormData({ ...formData, sexe: e.target.value })}
+                    className="input"
+                  >
+                    <option value="">Sélectionner</option>
+                    {SEXE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="label">Date de Naissance *</label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.dateNaissance}
+                    onChange={(e) => setFormData({ ...formData, dateNaissance: e.target.value })}
+                    className="input"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Lieu de Naissance *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.lieuNaissance}
+                    onChange={(e) => setFormData({ ...formData, lieuNaissance: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Bukavu"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">N° Permanent *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.numeroPermanent}
+                    onChange={(e) => setFormData({ ...formData, numeroPermanent: e.target.value })}
+                    className="input"
+                    placeholder="Ex: 12345"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Classe *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.classe}
+                    onChange={(e) => setFormData({ ...formData, classe: e.target.value })}
+                    className="input"
+                    placeholder="Ex: 3e Scientifique"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">École</label>
+                  <input
+                    type="text"
+                    value={formData.ecole}
+                    onChange={(e) => setFormData({ ...formData, ecole: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Institut Umoja"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Code École</label>
+                  <input
+                    type="text"
+                    value={formData.code}
+                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                    className="input"
+                    placeholder="Ex: EP1234"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Ville</label>
+                  <input
+                    type="text"
+                    value={formData.ville}
+                    onChange={(e) => setFormData({ ...formData, ville: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Bukavu"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Commune/Territoire</label>
+                  <input
+                    type="text"
+                    value={formData.commune_territoire}
+                    onChange={(e) => setFormData({ ...formData, commune_territoire: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Bagira"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-4 justify-end mt-6">
+                <button type="button" onClick={closeModal} className="btn btn-secondary">
+                  Annuler
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {editingEleve ? 'Modifier' : 'Créer'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
