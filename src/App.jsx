@@ -8,6 +8,7 @@ import NotesPage from './pages/NotesPage';
 import BulletinPage from './pages/BulletinPage';
 import UtilisateursPage from './pages/UtilisateursPage';
 import ParentElevePage from './pages/ParentElevePage';
+import EcolePage from './pages/EcolePage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="bulletins/:eleveId/:periode" element={<BulletinPage />} />
           <Route path="utilisateurs" element={<UtilisateursPage />} />
           <Route path="parent-eleve" element={<ParentElevePage />} />
+          <Route path="ecole" element={<EcolePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

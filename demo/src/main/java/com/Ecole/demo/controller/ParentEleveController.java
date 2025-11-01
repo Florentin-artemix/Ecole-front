@@ -15,13 +15,19 @@ public class ParentEleveController {
     @Autowired
     private ParentEleveService parentEleveService;
     
+    @GetMapping
+    public ResponseEntity<List<ParentEleveDTO>> getAllRelations() {
+        return ResponseEntity.ok(parentEleveService.getAllRelations());
+    }
+    
     @PostMapping
     public ResponseEntity<ParentEleveDTO> createRelation(@RequestBody ParentEleveCreateDTO dto) {
         return ResponseEntity.ok(parentEleveService.createParentEleveRelation(dto));
     }
     
     @PostMapping("/batch")
-    public ResponseEntity<List<ParentEleveDTO>> createMultipleRelations(@RequestBody List<ParentEleveCreateDTO> dtos) {
+    public ResponseEntity<List<ParentEleveDTO>> createMultipleRelations(
+    		@RequestBody List<ParentEleveCreateDTO> dtos) {
         return ResponseEntity.ok(parentEleveService.createMultipleRelations(dtos));
     }
     

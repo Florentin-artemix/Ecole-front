@@ -213,7 +213,7 @@ export default function ParentElevePage() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">École</p>
-                        <p className="font-semibold text-sm">{enfant.ecole}</p>
+                        <p className="font-semibold text-sm">{typeof enfant.ecole === 'object' ? enfant.ecole?.nomEcole : enfant.ecole}</p>
                       </div>
                     </div>
                   </div>
@@ -268,7 +268,7 @@ export default function ParentElevePage() {
                     Élève: {eleveNom}
                   </h3>
                   <p className="text-sm text-gray-600 mb-4">
-                    Classe: {eleve?.classe} | École: {eleve?.ecole}
+                    Classe: {eleve?.classe} | École: {typeof eleve?.ecole === 'object' ? eleve?.ecole?.nomEcole : eleve?.ecole}
                   </p>
                 </>
               );

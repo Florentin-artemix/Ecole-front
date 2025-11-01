@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { eleveService } from '../services/eleveService';
 import { bulletinService } from '../services/bulletinService';
+import { ecoleService } from '../services/ecoleService';
 import { PERIODE_ENUM, PERIODE_OPTIONS } from '../utils/enums';
 import BulletinCard from '../components/bulletin/BulletinCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -13,6 +14,7 @@ export default function BulletinPage() {
   const navigate = useNavigate();
 
   const [eleves, setEleves] = useState([]);
+  const [ecoleInfo, setEcoleInfo] = useState(null);
   const [selectedEleveId, setSelectedEleveId] = useState(paramEleveId || '');
   const [selectedPeriode, setSelectedPeriode] = useState(paramPeriode || '');
   const [bulletin, setBulletin] = useState(null);
@@ -22,6 +24,7 @@ export default function BulletinPage() {
 
   useEffect(() => {
     loadEleves();
+    loadEcoleInfo();
   }, []);
 
   useEffect(() => {
@@ -42,6 +45,18 @@ export default function BulletinPage() {
     }
   };
 
+  const loadEcoleInfo = async () => {
+    try {
+      const response = await ecoleService.getEcoleInfo();
+      if (response.data) {
+        setEcoleInfo(response.data);
+      }
+    } catch (error) {
+      // Si pas d'info école, on continue avec les valeurs par défaut
+      console.log('Aucune information école configurée');
+    }
+  };
+
   const loadBulletin = async (eleveId, periode) => {
     if (!eleveId || !periode) {
       setError('Veuillez sélectionner un élève et une période');
@@ -56,13 +71,23 @@ export default function BulletinPage() {
       const response = await bulletinService.getBulletin(eleveId, periode);
       const bulletinData = response.data;
       
-      // Enrichir le bulletin avec les données de l'élève si manquantes
-      const eleve = eleves.find(e => e.id === parseInt(eleveId));
-      if (eleve) {
-        bulletinData.ecole = bulletinData.ecole || eleve.ecole;
-        bulletinData.code = bulletinData.code || eleve.code;
-        bulletinData.ville = bulletinData.ville || eleve.ville;
-        bulletinData.commune_territoire = bulletinData.commune_territoire || eleve.commune_territoire;
+      // Enrichir le bulletin avec les infos de l'école configurée
+      if (ecoleInfo) {
+        // Le backend retourne déjà l'objet ecole complet, on peut l'extraire
+        if (!bulletinData.ecole || typeof bulletinData.ecole === 'string') {
+          bulletinData.ecole = ecoleInfo.nomEcole;
+        }
+        bulletinData.code = bulletinData.code || ecoleInfo.codeEcole;
+        bulletinData.ville = bulletinData.ville || ecoleInfo.ville;
+        bulletinData.commune_territoire = bulletinData.commune_territoire || ecoleInfo.commune_territoire;
+      }
+      
+      // Si bulletin.ecole est un objet (EcoleDTO du backend), extraire les valeurs
+      if (bulletinData.ecole && typeof bulletinData.ecole === 'object') {
+        bulletinData.code = bulletinData.code || bulletinData.ecole.codeEcole;
+        bulletinData.ville = bulletinData.ville || bulletinData.ecole.ville;
+        bulletinData.commune_territoire = bulletinData.commune_territoire || bulletinData.ecole.commune_territoire;
+        bulletinData.ecole = bulletinData.ecole.nomEcole;
       }
       
       setBulletin(bulletinData);

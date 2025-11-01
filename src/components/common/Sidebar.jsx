@@ -7,7 +7,8 @@ import {
   DocumentTextIcon,
   ClipboardDocumentCheckIcon,
   UsersIcon,
-  UserPlusIcon
+  UserPlusIcon,
+  BuildingOffice2Icon
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -18,6 +19,7 @@ const navigation = [
   { name: 'Bulletins', to: '/bulletins', icon: ClipboardDocumentCheckIcon },
   { name: 'Parent-Élève', to: '/parent-eleve', icon: UserPlusIcon },
   { name: 'Utilisateurs', to: '/utilisateurs', icon: UsersIcon },
+  { name: 'École', to: '/ecole', icon: BuildingOffice2Icon },
 ];
 
 export default function Sidebar() {

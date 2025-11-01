@@ -27,6 +27,13 @@ public class ParentEleveService {
     @Autowired
     private EleveRepository eleveRepository;
     
+    public List<ParentEleveDTO> getAllRelations() {
+        return parentEleveRepository.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
     public ParentEleveDTO createParentEleveRelation(ParentEleveCreateDTO dto) {
         Utilisateur parent = utilisateurRepository.findById(dto.getParentId())
                 .orElseThrow(() -> new RuntimeException("Parent non trouvé"));
@@ -76,7 +83,22 @@ public class ParentEleveService {
                     enfantDTO.setSexe(eleve.getSexe());
                     enfantDTO.setDateNaissance(eleve.getDateNaissance().format(DateTimeFormatter.ISO_DATE));
                     enfantDTO.setClasse(eleve.getClasse());
-                    enfantDTO.setEcole(eleve.getEcole());
+                    
+                    // Convertir l'entité Ecole en EcoleDTO
+                    if (eleve.getEcole() != null) {
+                        EcoleDTO ecoleDTO = new EcoleDTO();
+                        ecoleDTO.setId(eleve.getEcole().getId());
+                        ecoleDTO.setNomEcole(eleve.getEcole().getNomEcole());
+                        ecoleDTO.setCodeEcole(eleve.getEcole().getCodeEcole());
+                        ecoleDTO.setVille(eleve.getEcole().getVille());
+                        ecoleDTO.setCommune_territoire(eleve.getEcole().getCommune_territoire());
+                        ecoleDTO.setAdresse(eleve.getEcole().getAdresse());
+                        ecoleDTO.setTelephone(eleve.getEcole().getTelephone());
+                        ecoleDTO.setEmail(eleve.getEcole().getEmail());
+                        ecoleDTO.setDevise(eleve.getEcole().getDevise());
+                        enfantDTO.setEcole(ecoleDTO);
+                    }
+                    
                     enfantDTO.setLienParente(relation.getLienParente());
                     return enfantDTO;
                 })
@@ -144,7 +166,22 @@ public class ParentEleveService {
                        relation.getEleve().getPostnom() + " " + 
                        relation.getEleve().getPrenom());
         dto.setEleveClasse(relation.getEleve().getClasse());
-        dto.setEleveEcole(relation.getEleve().getEcole());
+        
+        // Convertir l'entité Ecole en EcoleDTO
+        if (relation.getEleve().getEcole() != null) {
+            EcoleDTO ecoleDTO = new EcoleDTO();
+            ecoleDTO.setId(relation.getEleve().getEcole().getId());
+            ecoleDTO.setNomEcole(relation.getEleve().getEcole().getNomEcole());
+            ecoleDTO.setCodeEcole(relation.getEleve().getEcole().getCodeEcole());
+            ecoleDTO.setVille(relation.getEleve().getEcole().getVille());
+            ecoleDTO.setCommune_territoire(relation.getEleve().getEcole().getCommune_territoire());
+            ecoleDTO.setAdresse(relation.getEleve().getEcole().getAdresse());
+            ecoleDTO.setTelephone(relation.getEleve().getEcole().getTelephone());
+            ecoleDTO.setEmail(relation.getEleve().getEcole().getEmail());
+            ecoleDTO.setDevise(relation.getEleve().getEcole().getDevise());
+            dto.setEleveEcole(ecoleDTO);
+        }
+        
         dto.setLienParente(relation.getLienParente());
         return dto;
     }
