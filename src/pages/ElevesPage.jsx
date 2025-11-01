@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { eleveService } from '../services/eleveService';
+import { ecoleService } from '../services/ecoleService';
 import { SEXE_OPTIONS } from '../utils/enums';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
@@ -10,6 +11,7 @@ import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/
 export default function ElevesPage() {
   const [eleves, setEleves] = useState([]);
   const [filteredEleves, setFilteredEleves] = useState([]);
+  const [ecoles, setEcoles] = useState([]);
   const [selectedClasse, setSelectedClasse] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -26,15 +28,29 @@ export default function ElevesPage() {
     lieuNaissance: '',
     numeroPermanent: '',
     classe: '',
-    ecole: 'Institut Umoja',
-    code: 'EP1234',
-    ville: 'Bukavu',
-    commune_territoire: 'Bagira',
+    ecoleId: '',
   });
 
   useEffect(() => {
-    loadEleves();
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      const [elevesRes, ecolesRes] = await Promise.all([
+        eleveService.getAllEleves(),
+        ecoleService.getAllEcoles().catch(() => ({ data: [] }))
+      ]);
+      const elevesData = elevesRes.data || [];
+      setEleves(elevesData);
+      setFilteredEleves(elevesData);
+      setEcoles(ecolesRes.data || []);
+    } catch (error) {
+      setError('Erreur lors du chargement des données');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadEleves = async () => {
     try {
@@ -44,8 +60,6 @@ export default function ElevesPage() {
       setFilteredEleves(elevesData);
     } catch (error) {
       setError('Erreur lors du chargement des élèves');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -70,6 +84,11 @@ export default function ElevesPage() {
       let dataToSend = { ...formData };
       if (formData.nom && formData.postnom && formData.prenom) {
         dataToSend.nomComplet = `${formData.nom} ${formData.postnom} ${formData.prenom}`;
+      }
+
+      // Convertir ecoleId en entier
+      if (dataToSend.ecoleId) {
+        dataToSend.ecoleId = parseInt(dataToSend.ecoleId);
       }
 
       if (editingEleve) {
@@ -131,7 +150,12 @@ export default function ElevesPage() {
   const openModal = (eleve = null) => {
     if (eleve) {
       setEditingEleve(eleve);
-      setFormData(eleve);
+      // Si l'élève a un objet ecole, extraire l'ID
+      const ecoleId = typeof eleve.ecole === 'object' ? eleve.ecole?.id : eleve.ecoleId;
+      setFormData({
+        ...eleve,
+        ecoleId: ecoleId || '',
+      });
     } else {
       setEditingEleve(null);
       setFormData({
@@ -144,10 +168,7 @@ export default function ElevesPage() {
         lieuNaissance: '',
         numeroPermanent: '',
         classe: '',
-        ecole: 'Institut Umoja',
-        code: 'EP1234',
-        ville: 'Bukavu',
-        commune_territoire: 'Bagira',
+        ecoleId: ecoles.length > 0 ? ecoles[0].id : '',
       });
     }
     setShowModal(true);
@@ -166,10 +187,7 @@ export default function ElevesPage() {
       lieuNaissance: '',
       numeroPermanent: '',
       classe: '',
-      ecole: 'Institut Umoja',
-      code: 'EP1234',
-      ville: 'Bukavu',
-      commune_territoire: 'Bagira',
+      ecoleId: '',
     });
   };
 
@@ -397,47 +415,26 @@ export default function ElevesPage() {
                 </div>
 
                 <div>
-                  <label className="label">École</label>
-                  <input
-                    type="text"
-                    value={formData.ecole}
-                    onChange={(e) => setFormData({ ...formData, ecole: e.target.value })}
-                    className="input"
-                    placeholder="Ex: Institut Umoja"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">Code École</label>
-                  <input
-                    type="text"
-                    value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                    className="input"
-                    placeholder="Ex: EP1234"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">Ville</label>
-                  <input
-                    type="text"
-                    value={formData.ville}
-                    onChange={(e) => setFormData({ ...formData, ville: e.target.value })}
-                    className="input"
-                    placeholder="Ex: Bukavu"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">Commune/Territoire</label>
-                  <input
-                    type="text"
-                    value={formData.commune_territoire}
-                    onChange={(e) => setFormData({ ...formData, commune_territoire: e.target.value })}
-                    className="input"
-                    placeholder="Ex: Bagira"
-                  />
+                  <label className="label">École *</label>
+                  {ecoles.length > 0 ? (
+                    <select
+                      required
+                      value={formData.ecoleId}
+                      onChange={(e) => setFormData({ ...formData, ecoleId: e.target.value })}
+                      className="input"
+                    >
+                      <option value="">-- Sélectionner une école --</option>
+                      {ecoles.map((ecole) => (
+                        <option key={ecole.id} value={ecole.id}>
+                          {ecole.nomEcole} - {ecole.ville}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="text-sm text-gray-600 p-2 bg-yellow-50 rounded">
+                      Aucune école disponible. Veuillez d'abord créer une école dans la page <a href="/ecole" className="text-blue-600 underline">Configuration École</a>.
+                    </div>
+                  )}
                 </div>
               </div>
 

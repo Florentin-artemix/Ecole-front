@@ -8,10 +8,26 @@ export const eleveService = {
   getEleveById: (id) => api.get(`/eleves/${id}`),
 
   // Créer un élève
-  createEleve: (eleveData) => api.post('/eleves', eleveData),
+  createEleve: (eleveData) => {
+    // Transformer ecoleId en objet ecole si nécessaire
+    const data = { ...eleveData };
+    if (data.ecoleId) {
+      data.ecole = { id: data.ecoleId };
+      delete data.ecoleId;
+    }
+    return api.post('/eleves', data);
+  },
 
   // Modifier un élève
-  updateEleve: (id, eleveData) => api.put(`/eleves/${id}`, eleveData),
+  updateEleve: (id, eleveData) => {
+    // Transformer ecoleId en objet ecole si nécessaire
+    const data = { ...eleveData };
+    if (data.ecoleId) {
+      data.ecole = { id: data.ecoleId };
+      delete data.ecoleId;
+    }
+    return api.put(`/eleves/${id}`, data);
+  },
 
   // Supprimer un élève
   deleteEleve: (id) => api.delete(`/eleves/${id}`),
