@@ -3,7 +3,9 @@ import { eleveService } from '../services/eleveService';
 import { coursService } from '../services/coursService';
 import { noteService } from '../services/noteService';
 import { utilisateurService } from '../services/utilisateurService';
+import { conduiteService } from '../services/conduiteService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ConduiteStatsCard from '../components/dashboard/ConduiteStatsCard';
 import { 
   UserGroupIcon, 
   AcademicCapIcon, 
@@ -20,6 +22,7 @@ export default function Dashboard() {
     notes: 0,
     utilisateurs: 0,
   });
+  const [conduites, setConduites] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,11 +31,12 @@ export default function Dashboard() {
 
   const loadStats = async () => {
     try {
-      const [elevesRes, coursRes, notesRes, usersRes] = await Promise.all([
+      const [elevesRes, coursRes, notesRes, usersRes, conduitesRes] = await Promise.all([
         eleveService.getAllEleves(),
         coursService.getAllCours(),
         noteService.getAllNotes(),
         utilisateurService.getAllUtilisateurs(),
+        conduiteService.getAllConduites(),
       ]);
 
       setStats({
@@ -41,6 +45,7 @@ export default function Dashboard() {
         notes: notesRes.data?.length || 0,
         utilisateurs: usersRes.data?.length || 0,
       });
+      setConduites(conduitesRes.data || []);
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error);
     } finally {
@@ -118,7 +123,7 @@ export default function Dashboard() {
       </div>
 
       {/* Informations supplémentaires */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center mb-4">
             <ChartBarIcon className="w-6 h-6 text-blue-600 mr-2" />
@@ -135,6 +140,8 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        <ConduiteStatsCard conduites={conduites} />
 
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center mb-4">

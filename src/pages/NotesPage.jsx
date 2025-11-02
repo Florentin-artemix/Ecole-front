@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { noteService } from '../services/noteService';
 import { eleveService } from '../services/eleveService';
 import { coursService } from '../services/coursService';
-import { PERIODE_OPTIONS } from '../utils/enums';
+import { PERIODE_OPTIONS, TYPE_CONDUITE_OPTIONS } from '../utils/enums';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import SuccessMessage from '../components/common/SuccessMessage';
@@ -25,6 +25,8 @@ export default function NotesPage() {
     coursId: '',
     valeur: '',
     periode: '',
+    typeConduite: '',
+    commentaireConduite: '',
   });
 
   useEffect(() => {
@@ -71,12 +73,18 @@ export default function NotesPage() {
         valeur: parseFloat(formData.valeur),
       };
 
+      // Enlever les champs de conduite s'ils sont vides (optionnels)
+      if (!data.typeConduite) {
+        delete data.typeConduite;
+        delete data.commentaireConduite;
+      }
+
       if (editingNote) {
         await noteService.updateNote(editingNote.id, data);
-        setSuccess('Note modifiée avec succès');
+        setSuccess('Note modifiée avec succès' + (data.typeConduite ? ' (avec conduite)' : ''));
       } else {
         await noteService.createNote(data);
-        setSuccess('Note créée avec succès');
+        setSuccess('Note créée avec succès' + (data.typeConduite ? ' (avec conduite)' : ''));
       }
       loadData();
       closeModal();
@@ -137,10 +145,19 @@ export default function NotesPage() {
         coursId: note.coursId?.toString() || '',
         valeur: note.valeur?.toString() || '',
         periode: note.periode || '',
+        typeConduite: '',
+        commentaireConduite: '',
       });
     } else {
       setEditingNote(null);
-      setFormData({ eleveId: '', coursId: '', valeur: '', periode: '' });
+      setFormData({ 
+        eleveId: '', 
+        coursId: '', 
+        valeur: '', 
+        periode: '',
+        typeConduite: '',
+        commentaireConduite: '',
+      });
     }
     setShowModal(true);
   };
@@ -148,7 +165,14 @@ export default function NotesPage() {
   const closeModal = () => {
     setShowModal(false);
     setEditingNote(null);
-    setFormData({ eleveId: '', coursId: '', valeur: '', periode: '' });
+    setFormData({ 
+      eleveId: '', 
+      coursId: '', 
+      valeur: '', 
+      periode: '',
+      typeConduite: '',
+      commentaireConduite: '',
+    });
   };
 
   const resetFilter = () => {
@@ -311,9 +335,9 @@ export default function NotesPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full">
-            <div className="flex justify-between items-center p-6 border-b">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-lg w-full my-8 max-h-[calc(100vh-4rem)] flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
               <h2 className="text-2xl font-bold text-gray-900">
                 {editingNote ? 'Modifier la Note' : 'Ajouter une Note'}
               </h2>
@@ -322,30 +346,31 @@ export default function NotesPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="label">Élève *</label>
-                  <select
-                    required
-                    value={formData.eleveId}
-                    onChange={(e) => setFormData({ ...formData, eleveId: e.target.value })}
-                    className="input"
-                  >
-                    <option value="">Sélectionner un élève</option>
-                    {eleves.map((eleve) => {
-                      const nom = eleve.nomComplet || 
-                        (eleve.nom && eleve.postnom && eleve.prenom 
-                          ? `${eleve.nom} ${eleve.postnom} ${eleve.prenom}` 
-                          : `Élève #${eleve.id}`);
-                      return (
-                        <option key={eleve.id} value={eleve.id}>
-                          {nom} {eleve.classeNom ? `- ${eleve.classeNom}` : ''}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
+            <form id="note-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="label">Élève *</label>
+                    <select
+                      required
+                      value={formData.eleveId}
+                      onChange={(e) => setFormData({ ...formData, eleveId: e.target.value })}
+                      className="input"
+                    >
+                      <option value="">Sélectionner un élève</option>
+                      {eleves.map((eleve) => {
+                        const nom = eleve.nomComplet || 
+                          (eleve.nom && eleve.postnom && eleve.prenom 
+                            ? `${eleve.nom} ${eleve.postnom} ${eleve.prenom}` 
+                            : `Élève #${eleve.id}`);
+                        return (
+                          <option key={eleve.id} value={eleve.id}>
+                            {nom} {eleve.classeNom ? `- ${eleve.classeNom}` : ''}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
 
                 <div>
                   <label className="label">Cours *</label>
@@ -395,17 +420,63 @@ export default function NotesPage() {
                     ))}
                   </select>
                 </div>
-              </div>
 
-              <div className="flex gap-4 justify-end mt-6">
-                <button type="button" onClick={closeModal} className="btn btn-secondary">
-                  Annuler
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingNote ? 'Modifier' : 'Créer'}
-                </button>
+                {/* Section optionnelle pour la conduite */}
+                <div className="border-t pt-4 mt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-1 h-6 bg-blue-500 rounded"></div>
+                    <h3 className="font-semibold text-gray-700">
+                      Évaluation de la conduite (optionnel)
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Vous pouvez évaluer le comportement de l'élève en même temps que sa note académique
+                  </p>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="label">Type de conduite</label>
+                      <select
+                        value={formData.typeConduite}
+                        onChange={(e) => setFormData({ ...formData, typeConduite: e.target.value })}
+                        className="input"
+                      >
+                        <option value="">-- Pas d'évaluation de conduite --</option>
+                        {TYPE_CONDUITE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {formData.typeConduite && (
+                      <div>
+                        <label className="label">Commentaire (optionnel)</label>
+                        <textarea
+                          rows="3"
+                          value={formData.commentaireConduite}
+                          onChange={(e) => setFormData({ ...formData, commentaireConduite: e.target.value })}
+                          className="input resize-none"
+                          placeholder="Ex: Élève attentif et participatif en classe..."
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
               </div>
             </form>
+
+            <div className="flex gap-4 justify-end p-6 border-t bg-gray-50 flex-shrink-0">
+              <button type="button" onClick={closeModal} className="btn btn-secondary">
+                Annuler
+              </button>
+              <button type="submit" form="note-form" className="btn btn-primary">
+                {editingNote ? 'Modifier' : 'Créer'}
+                {formData.typeConduite && ' (avec conduite)'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -309,9 +309,9 @@ export default function ElevesPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-2xl w-full my-8 max-h-[calc(100vh-4rem)] flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
               <h2 className="text-2xl font-bold text-gray-900">
                 {editingEleve ? 'Modifier l\'Élève' : 'Ajouter un Élève'}
               </h2>
@@ -320,7 +320,7 @@ export default function ElevesPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
+            <form id="eleve-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="label">Nom *</label>
@@ -454,16 +454,16 @@ export default function ElevesPage() {
                   )}
                 </div>
               </div>
-
-              <div className="flex gap-4 justify-end mt-6">
-                <button type="button" onClick={closeModal} className="btn btn-secondary">
-                  Annuler
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingEleve ? 'Modifier' : 'Créer'}
-                </button>
-              </div>
             </form>
+
+            <div className="flex gap-4 justify-end p-6 border-t bg-gray-50 flex-shrink-0">
+              <button type="button" onClick={closeModal} className="btn btn-secondary">
+                Annuler
+              </button>
+              <button type="submit" form="eleve-form" className="btn btn-primary">
+                {editingEleve ? 'Modifier' : 'Créer'}
+              </button>
+            </div>
           </div>
         </div>
       )}

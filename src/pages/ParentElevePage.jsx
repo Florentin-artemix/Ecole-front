@@ -379,16 +379,16 @@ export default function ParentElevePage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full">
-            <div className="flex justify-between items-center p-6 border-b">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-md w-full my-8 max-h-[calc(100vh-4rem)] flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
               <h2 className="text-2xl font-bold text-gray-900">Ajouter une Relation</h2>
               <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
                 <XMarkIcon className="w-6 h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
+            <form id="parent-eleve-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
               <div className="space-y-4">
                 <div>
                   <label className="label">Parent *</label>
@@ -447,16 +447,16 @@ export default function ParentElevePage() {
                   </select>
                 </div>
               </div>
-
-              <div className="flex gap-4 justify-end mt-6">
-                <button type="button" onClick={closeModal} className="btn btn-secondary">
-                  Annuler
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Créer
-                </button>
-              </div>
             </form>
+
+            <div className="flex gap-4 justify-end p-6 border-t bg-gray-50 flex-shrink-0">
+              <button type="button" onClick={closeModal} className="btn btn-secondary">
+                Annuler
+              </button>
+              <button type="submit" form="parent-eleve-form" className="btn btn-primary">
+                Créer
+              </button>
+            </div>
           </div>
         </div>
       )}

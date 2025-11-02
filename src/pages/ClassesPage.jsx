@@ -145,9 +145,9 @@ export default function ClassesPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full">
-            <div className="flex justify-between items-center p-6 border-b">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-lg w-full my-8 max-h-[calc(100vh-4rem)] flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
               <h2 className="text-2xl font-bold text-gray-900">
                 {editingClasse ? 'Modifier la Classe' : 'Ajouter une Classe'}
               </h2>
@@ -156,7 +156,7 @@ export default function ClassesPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
+            <form id="classe-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
               <div className="space-y-4">
                 <div>
                   <label className="label">Nom de la Classe *</label>
@@ -184,16 +184,16 @@ export default function ClassesPage() {
                   />
                 </div>
               </div>
-
-              <div className="flex gap-4 justify-end mt-6">
-                <button type="button" onClick={closeModal} className="btn btn-secondary">
-                  Annuler
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingClasse ? 'Modifier' : 'Créer'}
-                </button>
-              </div>
             </form>
+
+            <div className="flex gap-4 justify-end p-6 border-t bg-gray-50 flex-shrink-0">
+              <button type="button" onClick={closeModal} className="btn btn-secondary">
+                Annuler
+              </button>
+              <button type="submit" form="classe-form" className="btn btn-primary">
+                {editingClasse ? 'Modifier' : 'Créer'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -92,9 +92,9 @@ export default function DataImporter({ onImport, type }) {
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-3xl w-full my-8 max-h-[calc(100vh-4rem)] flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
               <h2 className="text-2xl font-bold text-gray-900">
                 Importer des données JSON
               </h2>
@@ -103,7 +103,7 @@ export default function DataImporter({ onImport, type }) {
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-6 flex-1 overflow-y-auto">
               <label className="label">Collez vos données JSON ici :</label>
               <textarea
                 value={jsonData}
@@ -126,6 +126,15 @@ export default function DataImporter({ onImport, type }) {
             </div>
 
             <div className="flex gap-4 justify-end p-6 border-t">
+              <button
+                onClick={() => setShowModal(false)}
+                className="btn btn-secondary"
+              >
+                Annuler
+              </button>
+            </div>
+
+            <div className="p-6 border-t bg-gray-50 flex justify-end gap-3 flex-shrink-0">
               <button
                 onClick={() => setShowModal(false)}
                 className="btn btn-secondary"

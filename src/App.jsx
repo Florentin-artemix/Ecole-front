@@ -10,6 +10,7 @@ import BulletinPage from './pages/BulletinPage';
 import UtilisateursPage from './pages/UtilisateursPage';
 import ParentElevePage from './pages/ParentElevePage';
 import EcolePage from './pages/EcolePage';
+import ConduitesPage from './pages/ConduitesPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="bulletins/:eleveId/:periode" element={<BulletinPage />} />
           <Route path="utilisateurs" element={<UtilisateursPage />} />
           <Route path="parent-eleve" element={<ParentElevePage />} />
+          <Route path="conduites" element={<ConduitesPage />} />
           <Route path="ecole" element={<EcolePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

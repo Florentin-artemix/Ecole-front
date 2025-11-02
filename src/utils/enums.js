@@ -87,12 +87,47 @@ export const MENTION_COLORS = {
 };
 
 // ========================
-// CONDUITES
+// ÉNUMÉRATION: TYPE CONDUITE
+// ========================
+export const TYPE_CONDUITE_ENUM = {
+  EXCELLENT: 'EXCELLENT',
+  TRES_BON: 'TRES_BON',
+  BON: 'BON',
+  ASSEZ_BON: 'ASSEZ_BON',
+  PASSABLE: 'PASSABLE',
+  MEDIOCRE: 'MEDIOCRE',
+  MAUVAIS: 'MAUVAIS',
+};
+
+export const TYPE_CONDUITE_LABELS = {
+  EXCELLENT: 'Excellent',
+  TRES_BON: 'Très Bon',
+  BON: 'Bon',
+  ASSEZ_BON: 'Assez Bon',
+  PASSABLE: 'Passable',
+  MEDIOCRE: 'Médiocre',
+  MAUVAIS: 'Mauvais',
+};
+
+export const TYPE_CONDUITE_OPTIONS = [
+  { value: TYPE_CONDUITE_ENUM.EXCELLENT, label: TYPE_CONDUITE_LABELS.EXCELLENT },
+  { value: TYPE_CONDUITE_ENUM.TRES_BON, label: TYPE_CONDUITE_LABELS.TRES_BON },
+  { value: TYPE_CONDUITE_ENUM.BON, label: TYPE_CONDUITE_LABELS.BON },
+  { value: TYPE_CONDUITE_ENUM.ASSEZ_BON, label: TYPE_CONDUITE_LABELS.ASSEZ_BON },
+  { value: TYPE_CONDUITE_ENUM.PASSABLE, label: TYPE_CONDUITE_LABELS.PASSABLE },
+  { value: TYPE_CONDUITE_ENUM.MEDIOCRE, label: TYPE_CONDUITE_LABELS.MEDIOCRE },
+  { value: TYPE_CONDUITE_ENUM.MAUVAIS, label: TYPE_CONDUITE_LABELS.MAUVAIS },
+];
+
+// ========================
+// CONDUITES - Couleurs
 // ========================
 export const CONDUITE_COLORS = {
   'Excellent': 'bg-green-100 text-green-800',
   'Très Bon': 'bg-blue-100 text-blue-800',
   'Bon': 'bg-yellow-100 text-yellow-800',
+  'Assez Bon': 'bg-lime-100 text-lime-800',
   'Passable': 'bg-orange-100 text-orange-800',
-  'Mauvais': 'bg-red-100 text-red-800',
+  'Médiocre': 'bg-red-100 text-red-800',
+  'Mauvais': 'bg-red-200 text-red-900',
 };
