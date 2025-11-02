@@ -203,7 +203,7 @@ export default function NotesPage() {
                   const notesCount = notes.filter(n => n.eleveId === eleve.id).length;
                   return (
                     <option key={eleve.id} value={eleve.id}>
-                      {nom} - {eleve.classe} ({notesCount} note{notesCount > 1 ? 's' : ''})
+                      {nom} - {eleve.classeNom || 'Classe N/A'} ({notesCount} note{notesCount > 1 ? 's' : ''})
                     </option>
                   );
                 })}
@@ -333,11 +333,17 @@ export default function NotesPage() {
                     className="input"
                   >
                     <option value="">Sélectionner un élève</option>
-                    {eleves.map((eleve) => (
-                      <option key={eleve.id} value={eleve.id}>
-                        {eleve.nomComplet}
-                      </option>
-                    ))}
+                    {eleves.map((eleve) => {
+                      const nom = eleve.nomComplet || 
+                        (eleve.nom && eleve.postnom && eleve.prenom 
+                          ? `${eleve.nom} ${eleve.postnom} ${eleve.prenom}` 
+                          : `Élève #${eleve.id}`);
+                      return (
+                        <option key={eleve.id} value={eleve.id}>
+                          {nom} {eleve.classeNom ? `- ${eleve.classeNom}` : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 

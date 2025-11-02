@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Layout from './components/common/Layout';
 import Dashboard from './pages/Dashboard';
 import ElevesPage from './pages/ElevesPage';
+import ClassesPage from './pages/ClassesPage';
 import CoursPage from './pages/CoursPage';
 import NotesPage from './pages/NotesPage';
 import BulletinPage from './pages/BulletinPage';
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="eleves" element={<ElevesPage />} />
+          <Route path="classes" element={<ClassesPage />} />
           <Route path="cours" element={<CoursPage />} />
           <Route path="notes" element={<NotesPage />} />
           <Route path="bulletins" element={<BulletinPage />} />

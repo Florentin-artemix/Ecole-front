@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { coursService } from '../services/coursService';
+import { classeService } from '../services/classeService';
 import { utilisateurService } from '../services/utilisateurService';
 import { ROLE_ENUM } from '../utils/enums';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -10,6 +11,7 @@ import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/
 
 export default function CoursPage() {
   const [cours, setCours] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [professeurs, setProfesseurs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -19,6 +21,7 @@ export default function CoursPage() {
   const [formData, setFormData] = useState({
     nomCours: '',
     ponderation: '',
+    classeId: '',
     professeurId: '',
   });
 
@@ -28,11 +31,13 @@ export default function CoursPage() {
 
   const loadData = async () => {
     try {
-      const [coursRes, profsRes] = await Promise.all([
+      const [coursRes, classesRes, profsRes] = await Promise.all([
         coursService.getAllCours(),
+        classeService.getAllClasses(),
         utilisateurService.getUtilisateursByRole(ROLE_ENUM.PROFESSEUR),
       ]);
       setCours(coursRes.data || []);
+      setClasses(classesRes.data || []);
       setProfesseurs(profsRes.data || []);
     } catch (error) {
       setError('Erreur lors du chargement des données');
@@ -49,6 +54,7 @@ export default function CoursPage() {
       const data = {
         ...formData,
         ponderation: parseInt(formData.ponderation),
+        classeId: parseInt(formData.classeId),
         professeurId: parseInt(formData.professeurId),
       };
 
@@ -115,11 +121,12 @@ export default function CoursPage() {
       setFormData({
         nomCours: coursItem.nomCours,
         ponderation: coursItem.ponderation.toString(),
+        classeId: coursItem.classeId?.toString() || '',
         professeurId: coursItem.professeurId?.toString() || '',
       });
     } else {
       setEditingCours(null);
-      setFormData({ nomCours: '', ponderation: '', professeurId: '' });
+      setFormData({ nomCours: '', ponderation: '', classeId: '', professeurId: '' });
     }
     setShowModal(true);
   };
@@ -127,7 +134,7 @@ export default function CoursPage() {
   const closeModal = () => {
     setShowModal(false);
     setEditingCours(null);
-    setFormData({ nomCours: '', ponderation: '', professeurId: '' });
+    setFormData({ nomCours: '', ponderation: '', classeId: '', professeurId: '' });
   };
 
   if (loading) return <LoadingSpinner fullScreen />;
@@ -159,7 +166,12 @@ export default function CoursPage() {
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{coursItem.nomCours}</h3>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {coursItem.classeNom && (
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                        Classe: {coursItem.classeNom}
+                      </span>
+                    )}
                     <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
                       Pondération: {coursItem.ponderation}
                     </span>
@@ -220,6 +232,23 @@ export default function CoursPage() {
                     className="input"
                     placeholder="Ex: Mathématiques"
                   />
+                </div>
+
+                <div>
+                  <label className="label">Classe *</label>
+                  <select
+                    required
+                    value={formData.classeId}
+                    onChange={(e) => setFormData({ ...formData, classeId: e.target.value })}
+                    className="input"
+                  >
+                    <option value="">Sélectionner une classe</option>
+                    {classes.map((classe) => (
+                      <option key={classe.id} value={classe.id}>
+                        {classe.nom} - {classe.description}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>

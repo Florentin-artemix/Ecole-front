@@ -8,12 +8,14 @@ import {
   ClipboardDocumentCheckIcon,
   UsersIcon,
   UserPlusIcon,
-  BuildingOffice2Icon
+  BuildingOffice2Icon,
+  RectangleGroupIcon
 } from '@heroicons/react/24/outline';
 
 const navigation = [
   { name: 'Dashboard', to: '/', icon: HomeIcon },
   { name: 'Élèves', to: '/eleves', icon: UserGroupIcon },
+  { name: 'Classes', to: '/classes', icon: RectangleGroupIcon },
   { name: 'Cours', to: '/cours', icon: AcademicCapIcon },
   { name: 'Notes', to: '/notes', icon: DocumentTextIcon },
   { name: 'Bulletins', to: '/bulletins', icon: ClipboardDocumentCheckIcon },

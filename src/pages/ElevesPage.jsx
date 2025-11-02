@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { eleveService } from '../services/eleveService';
 import { ecoleService } from '../services/ecoleService';
+import { classeService } from '../services/classeService';
 import { SEXE_OPTIONS } from '../utils/enums';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
@@ -12,6 +13,7 @@ export default function ElevesPage() {
   const [eleves, setEleves] = useState([]);
   const [filteredEleves, setFilteredEleves] = useState([]);
   const [ecoles, setEcoles] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [selectedClasse, setSelectedClasse] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,7 +29,7 @@ export default function ElevesPage() {
     dateNaissance: '',
     lieuNaissance: '',
     numeroPermanent: '',
-    classe: '',
+    classeId: '',
     ecoleId: '',
   });
 
@@ -37,14 +39,16 @@ export default function ElevesPage() {
 
   const loadData = async () => {
     try {
-      const [elevesRes, ecolesRes] = await Promise.all([
+      const [elevesRes, ecolesRes, classesRes] = await Promise.all([
         eleveService.getAllEleves(),
-        ecoleService.getAllEcoles().catch(() => ({ data: [] }))
+        ecoleService.getAllEcoles().catch(() => ({ data: [] })),
+        classeService.getAllClasses().catch(() => ({ data: [] }))
       ]);
       const elevesData = elevesRes.data || [];
       setEleves(elevesData);
       setFilteredEleves(elevesData);
       setEcoles(ecolesRes.data || []);
+      setClasses(classesRes.data || []);
     } catch (error) {
       setError('Erreur lors du chargement des données');
     } finally {
@@ -68,12 +72,12 @@ export default function ElevesPage() {
     if (selectedClasse === '') {
       setFilteredEleves(eleves);
     } else {
-      setFilteredEleves(eleves.filter(eleve => eleve.classe === selectedClasse));
+      setFilteredEleves(eleves.filter(eleve => eleve.classeNom === selectedClasse));
     }
   }, [selectedClasse, eleves]);
 
-  // Obtenir la liste unique des classes
-  const classes = [...new Set(eleves.map(eleve => eleve.classe))].filter(Boolean).sort();
+  // Obtenir la liste unique des classes depuis les élèves
+  const uniqueClasseNames = [...new Set(eleves.map(eleve => eleve.classeNom))].filter(Boolean).sort();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -86,7 +90,10 @@ export default function ElevesPage() {
         dataToSend.nomComplet = `${formData.nom} ${formData.postnom} ${formData.prenom}`;
       }
 
-      // Convertir ecoleId en entier
+      // Convertir classeId et ecoleId en entiers
+      if (dataToSend.classeId) {
+        dataToSend.classeId = parseInt(dataToSend.classeId);
+      }
       if (dataToSend.ecoleId) {
         dataToSend.ecoleId = parseInt(dataToSend.ecoleId);
       }
@@ -154,6 +161,7 @@ export default function ElevesPage() {
       const ecoleId = typeof eleve.ecole === 'object' ? eleve.ecole?.id : eleve.ecoleId;
       setFormData({
         ...eleve,
+        classeId: eleve.classeId || '',
         ecoleId: ecoleId || '',
       });
     } else {
@@ -167,7 +175,7 @@ export default function ElevesPage() {
         dateNaissance: '',
         lieuNaissance: '',
         numeroPermanent: '',
-        classe: '',
+        classeId: classes.length > 0 ? classes[0].id : '',
         ecoleId: ecoles.length > 0 ? ecoles[0].id : '',
       });
     }
@@ -186,7 +194,7 @@ export default function ElevesPage() {
       dateNaissance: '',
       lieuNaissance: '',
       numeroPermanent: '',
-      classe: '',
+      classeId: '',
       ecoleId: '',
     });
   };
@@ -223,9 +231,9 @@ export default function ElevesPage() {
             className="input w-64"
           >
             <option value="">Toutes les classes</option>
-            {classes.map((classe) => (
-              <option key={classe} value={classe}>
-                {classe}
+            {uniqueClasseNames.map((classeName) => (
+              <option key={classeName} value={classeName}>
+                {classeName}
               </option>
             ))}
           </select>
@@ -272,7 +280,7 @@ export default function ElevesPage() {
                     <td className="px-6 py-4">{eleve.numeroPermanent}</td>
                     <td className="px-6 py-4">
                       <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                        {eleve.classe}
+                        {eleve.classeNom}
                       </span>
                     </td>
                   <td className="px-6 py-4">
@@ -404,14 +412,23 @@ export default function ElevesPage() {
 
                 <div>
                   <label className="label">Classe *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.classe}
-                    onChange={(e) => setFormData({ ...formData, classe: e.target.value })}
-                    className="input"
-                    placeholder="Ex: 3e Scientifique"
-                  />
+                  {classes.length > 0 ? (
+                    <select
+                      required
+                      value={formData.classeId}
+                      onChange={(e) => setFormData({ ...formData, classeId: e.target.value })}
+                      className="input"
+                    >
+                      <option value="">-- Sélectionner une classe --</option>
+                      {classes.map((classe) => (
+                        <option key={classe.id} value={classe.id}>
+                          {classe.nom} - {classe.description}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="text-sm text-gray-500">Aucune classe disponible</p>
+                  )}
                 </div>
 
                 <div>
