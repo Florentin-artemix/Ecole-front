@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { noteService } from '../services/noteService';
 import { eleveService } from '../services/eleveService';
 import { coursService } from '../services/coursService';
+import { classeService } from '../services/classeService';
 import { PERIODE_OPTIONS, TYPE_CONDUITE_OPTIONS } from '../utils/enums';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
@@ -11,14 +12,15 @@ import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/
 
 export default function NotesPage() {
   const [notes, setNotes] = useState([]);
-  const [filteredNotes, setFilteredNotes] = useState([]);
   const [eleves, setEleves] = useState([]);
   const [cours, setCours] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
+  const [selectedClasseFilter, setSelectedClasseFilter] = useState('');
   const [selectedEleveFilter, setSelectedEleveFilter] = useState('');
   const [formData, setFormData] = useState({
     eleveId: '',
@@ -33,28 +35,45 @@ export default function NotesPage() {
     loadData();
   }, []);
 
-  // Effet pour filtrer les notes par élève
-  useEffect(() => {
-    if (selectedEleveFilter === '') {
-      setFilteredNotes(notes);
-    } else {
-      const filtered = notes.filter(note => note.eleveId === parseInt(selectedEleveFilter));
-      setFilteredNotes(filtered);
+  // Calculer les notes filtrées avec useMemo pour éviter les re-renders infinis
+  const filteredNotes = useMemo(() => {
+    let filtered = notes;
+
+    // Filtrer par classe d'abord
+    if (selectedClasseFilter !== '') {
+      const elevesDeClasse = eleves.filter(e => e.classeId === parseInt(selectedClasseFilter));
+      const eleveIds = elevesDeClasse.map(e => e.id);
+      filtered = filtered.filter(note => eleveIds.includes(note.eleveId));
     }
-  }, [selectedEleveFilter, notes]);
+
+    // Puis filtrer par élève si sélectionné
+    if (selectedEleveFilter !== '') {
+      filtered = filtered.filter(note => note.eleveId === parseInt(selectedEleveFilter));
+    }
+
+    return filtered;
+  }, [selectedClasseFilter, selectedEleveFilter, notes, eleves]);
 
   const loadData = async () => {
     try {
-      const [notesRes, elevesRes, coursRes] = await Promise.all([
+      const [notesRes, elevesRes, coursRes, classesRes] = await Promise.all([
         noteService.getAllNotes(),
         eleveService.getAllEleves(),
         coursService.getAllCours(),
+        classeService.getAllClasses(),
       ]);
       setNotes(notesRes.data || []);
-      setFilteredNotes(notesRes.data || []);
       setEleves(elevesRes.data || []);
       setCours(coursRes.data || []);
+      setClasses(classesRes.data || []);
+      console.log('Données chargées:', {
+        notes: notesRes.data?.length || 0,
+        eleves: elevesRes.data?.length || 0,
+        cours: coursRes.data?.length || 0,
+        classes: classesRes.data?.length || 0
+      });
     } catch (error) {
+      console.error('Erreur chargement:', error);
       setError('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
@@ -176,7 +195,16 @@ export default function NotesPage() {
   };
 
   const resetFilter = () => {
+    setSelectedClasseFilter('');
     setSelectedEleveFilter('');
+  };
+
+  // Obtenir les élèves filtrés par classe
+  const getFilteredEleves = () => {
+    if (selectedClasseFilter === '') {
+      return eleves;
+    }
+    return eleves.filter(e => e.classeId === parseInt(selectedClasseFilter));
   };
 
   if (loading) return <LoadingSpinner fullScreen />;
@@ -200,20 +228,65 @@ export default function NotesPage() {
       {error && <ErrorMessage message={error} onClose={() => setError('')} />}
       {success && <SuccessMessage message={success} onClose={() => setSuccess('')} />}
 
-      {/* Filtre par élève */}
+      {/* Filtres en cascade : Classe → Élève */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <div className="flex-1">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          Filtres de recherche
+          <span className="text-xs text-gray-500 ml-2">({classes.length} classe{classes.length > 1 ? 's' : ''} disponible{classes.length > 1 ? 's' : ''})</span>
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          {/* Filtre par classe */}
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Filtrer par élève
+              1️⃣ Filtrer par classe
+            </label>
+            <select
+              value={selectedClasseFilter}
+              onChange={(e) => {
+                setSelectedClasseFilter(e.target.value);
+                setSelectedEleveFilter(''); // Réinitialiser le filtre élève quand on change de classe
+              }}
+              className="input w-full"
+            >
+              <option value="">-- Toutes les classes ({classes.length}) --</option>
+              {classes.length === 0 ? (
+                <option disabled>Aucune classe disponible</option>
+              ) : (
+                classes
+                  .sort((a, b) => (a.nom || '').localeCompare(b.nom || ''))
+                  .map((classe) => {
+                    const elevesCount = eleves.filter(e => e.classeId === classe.id).length;
+                    const notesCount = notes.filter(n => {
+                      const eleve = eleves.find(e => e.id === n.eleveId);
+                      return eleve?.classeId === classe.id;
+                    }).length;
+                    return (
+                      <option key={classe.id} value={classe.id}>
+                        {classe.nom} ({elevesCount} élève{elevesCount > 1 ? 's' : ''}, {notesCount} note{notesCount > 1 ? 's' : ''})
+                      </option>
+                    );
+                  })
+              )}
+            </select>
+          </div>
+
+          {/* Filtre par élève (filtré par classe si sélectionnée) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              2️⃣ Filtrer par élève {selectedClasseFilter && <span className="text-blue-600">(de la classe sélectionnée)</span>}
             </label>
             <select
               value={selectedEleveFilter}
               onChange={(e) => setSelectedEleveFilter(e.target.value)}
               className="input w-full"
+              disabled={!selectedClasseFilter && eleves.length > 20} // Désactiver si trop d'élèves sans filtre classe
             >
-              <option value="">-- Tous les élèves --</option>
-              {eleves
+              <option value="">
+                {selectedClasseFilter 
+                  ? "-- Tous les élèves de cette classe --" 
+                  : "-- Tous les élèves --"}
+              </option>
+              {getFilteredEleves()
                 .sort((a, b) => {
                   const nomA = a.nomComplet || `${a.nom} ${a.postnom} ${a.prenom}`;
                   const nomB = b.nomComplet || `${b.nom} ${b.postnom} ${b.prenom}`;
@@ -227,32 +300,41 @@ export default function NotesPage() {
                   const notesCount = notes.filter(n => n.eleveId === eleve.id).length;
                   return (
                     <option key={eleve.id} value={eleve.id}>
-                      {nom} - {eleve.classeNom || 'Classe N/A'} ({notesCount} note{notesCount > 1 ? 's' : ''})
+                      {nom} ({notesCount} note{notesCount > 1 ? 's' : ''})
                     </option>
                   );
                 })}
             </select>
-          </div>
-          <div className="flex items-end gap-3">
-            {selectedEleveFilter && (
-              <button onClick={resetFilter} className="btn btn-secondary whitespace-nowrap">
-                Réinitialiser
-              </button>
-            )}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
-              <p className="text-sm text-gray-600">
-                <span className="font-bold text-blue-700 text-lg">{filteredNotes.length}</span>
-                <span className="text-gray-600 ml-2">
-                  note{filteredNotes.length > 1 ? 's' : ''} affichée{filteredNotes.length > 1 ? 's' : ''}
-                </span>
-                {selectedEleveFilter && (
-                  <span className="text-gray-500 ml-1">
-                    (sur {notes.length} au total)
-                  </span>
-                )}
+            {!selectedClasseFilter && eleves.length > 20 && (
+              <p className="text-xs text-amber-600 mt-1">
+                ⚠️ Veuillez d'abord sélectionner une classe pour activer ce filtre
               </p>
-            </div>
+            )}
           </div>
+        </div>
+
+        {/* Barre d'état et bouton réinitialiser */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-gray-200">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+            <p className="text-sm">
+              <span className="font-bold text-blue-700 text-lg">{filteredNotes.length}</span>
+              <span className="text-gray-600 ml-2">
+                note{filteredNotes.length > 1 ? 's' : ''} affichée{filteredNotes.length > 1 ? 's' : ''}
+              </span>
+              {(selectedClasseFilter || selectedEleveFilter) && (
+                <span className="text-gray-500 ml-1">
+                  (sur {notes.length} au total)
+                </span>
+              )}
+            </p>
+          </div>
+          
+          {(selectedClasseFilter || selectedEleveFilter) && (
+            <button onClick={resetFilter} className="btn btn-secondary whitespace-nowrap">
+              <XMarkIcon className="w-4 h-4 inline mr-1" />
+              Réinitialiser les filtres
+            </button>
+          )}
         </div>
       </div>
 
