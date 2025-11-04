@@ -25,7 +25,7 @@ export default function ClassesPage() {
     try {
       const response = await classeService.getAllClasses();
       setClasses(response.data || []);
-    } catch (error) {
+    } catch {
       setError('Erreur lors du chargement des classes');
     } finally {
       setLoading(false);
@@ -46,8 +46,8 @@ export default function ClassesPage() {
       }
       loadClasses();
       closeModal();
-    } catch (error) {
-      setError(error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erreur lors de l\'enregistrement');
     }
   };
 
@@ -58,7 +58,7 @@ export default function ClassesPage() {
       await classeService.deleteClasse(id);
       setSuccess('Classe supprimée avec succès');
       loadClasses();
-    } catch (error) {
+    } catch {
       setError('Erreur lors de la suppression');
     }
   };

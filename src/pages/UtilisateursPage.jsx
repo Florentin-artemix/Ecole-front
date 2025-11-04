@@ -30,7 +30,7 @@ export default function UtilisateursPage() {
     try {
       const response = await utilisateurService.getAllUtilisateurs();
       setUtilisateurs(response.data || []);
-    } catch (error) {
+    } catch {
       setError('Erreur lors du chargement des utilisateurs');
     } finally {
       setLoading(false);
@@ -51,8 +51,8 @@ export default function UtilisateursPage() {
       }
       loadUtilisateurs();
       closeModal();
-    } catch (error) {
-      setError(error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erreur lors de l\'enregistrement');
     }
   };
 
@@ -63,7 +63,7 @@ export default function UtilisateursPage() {
       await utilisateurService.deleteUtilisateur(id);
       setSuccess('Utilisateur supprimé avec succès');
       loadUtilisateurs();
-    } catch (error) {
+    } catch {
       setError('Erreur lors de la suppression');
     }
   };
@@ -78,7 +78,7 @@ export default function UtilisateursPage() {
         try {
           await utilisateurService.createUtilisateur(item);
           successCount++;
-        } catch (err) {
+        } catch {
           errorCount++;
         }
       }
@@ -89,7 +89,7 @@ export default function UtilisateursPage() {
       } else {
         setError('Aucun utilisateur n\'a pu être importé');
       }
-    } catch (error) {
+    } catch {
       setError('Erreur lors de l\'importation');
     }
   };

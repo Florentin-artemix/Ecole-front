@@ -49,7 +49,7 @@ export default function ElevesPage() {
       setFilteredEleves(elevesData);
       setEcoles(ecolesRes.data || []);
       setClasses(classesRes.data || []);
-    } catch (error) {
+    } catch {
       setError('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
@@ -62,7 +62,7 @@ export default function ElevesPage() {
       const elevesData = response.data || [];
       setEleves(elevesData);
       setFilteredEleves(elevesData);
-    } catch (error) {
+    } catch {
       setError('Erreur lors du chargement des élèves');
     }
   };
@@ -126,7 +126,7 @@ export default function ElevesPage() {
           }
           await eleveService.createEleve(item);
           successCount++;
-        } catch (err) {
+        } catch {
           errorCount++;
         }
       }
@@ -137,7 +137,7 @@ export default function ElevesPage() {
       } else {
         setError('Aucun élève n\'a pu être importé');
       }
-    } catch (error) {
+    } catch {
       setError('Erreur lors de l\'importation');
     }
   };
@@ -149,7 +149,7 @@ export default function ElevesPage() {
       await eleveService.deleteEleve(id);
       setSuccess('Élève supprimé avec succès');
       loadEleves();
-    } catch (error) {
+    } catch {
       setError('Erreur lors de la suppression');
     }
   };

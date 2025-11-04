@@ -39,7 +39,7 @@ export default function CoursPage() {
       setCours(coursRes.data || []);
       setClasses(classesRes.data || []);
       setProfesseurs(profsRes.data || []);
-    } catch (error) {
+    } catch {
       setError('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
@@ -67,8 +67,8 @@ export default function CoursPage() {
       }
       loadData();
       closeModal();
-    } catch (error) {
-      setError(error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erreur lors de l\'enregistrement');
     }
   };
 
@@ -79,7 +79,7 @@ export default function CoursPage() {
       await coursService.deleteCours(id);
       setSuccess('Cours supprimé avec succès');
       loadData();
-    } catch (error) {
+    } catch {
       setError('Erreur lors de la suppression');
     }
   };
@@ -99,7 +99,7 @@ export default function CoursPage() {
           };
           await coursService.createCours(coursData);
           successCount++;
-        } catch (err) {
+        } catch {
           errorCount++;
         }
       }
@@ -110,7 +110,7 @@ export default function CoursPage() {
       } else {
         setError('Aucun cours n\'a pu être importé');
       }
-    } catch (error) {
+    } catch {
       setError('Erreur lors de l\'importation');
     }
   };

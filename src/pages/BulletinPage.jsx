@@ -31,6 +31,7 @@ export default function BulletinPage() {
     if (paramEleveId && paramPeriode) {
       loadBulletin(paramEleveId, paramPeriode);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paramEleveId, paramPeriode]);
 
   const loadEleves = async () => {
@@ -51,7 +52,7 @@ export default function BulletinPage() {
       if (response.data) {
         setEcoleInfo(response.data);
       }
-    } catch (error) {
+    } catch {
       // Si pas d'info école, on continue avec les valeurs par défaut
       console.log('Aucune information école configurée');
     }

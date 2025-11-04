@@ -13,7 +13,7 @@ export default function DataImporter({ onImport, type }) {
       await onImport(data);
       setShowModal(false);
       setJsonData('');
-    } catch (err) {
+    } catch {
       setError('JSON invalide ou erreur lors de l\'importation');
     }
   };

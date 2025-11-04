@@ -57,7 +57,7 @@ export default function ParentElevePage() {
       const parentsOnly = (utilisateursRes.data || []).filter(u => u.role === 'PARENT');
       setParents(parentsOnly);
       setEleves(elevesRes.data || []);
-    } catch (error) {
+    } catch {
       setError('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
@@ -79,8 +79,8 @@ export default function ParentElevePage() {
       setSuccess('Relation parent-élève créée avec succès');
       loadData();
       closeModal();
-    } catch (error) {
-      setError(error.response?.data?.message || 'Erreur lors de la création');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erreur lors de la création');
     }
   };
 
@@ -91,7 +91,7 @@ export default function ParentElevePage() {
       await parentEleveService.deleteRelation(id);
       setSuccess('Relation supprimée avec succès');
       loadData();
-    } catch (error) {
+    } catch {
       setError('Erreur lors de la suppression');
     }
   };
@@ -102,7 +102,7 @@ export default function ParentElevePage() {
       await parentEleveService.createRelationsBatch(dataArray);
       setSuccess(`${dataArray.length} relation(s) importée(s) avec succès`);
       loadData();
-    } catch (error) {
+    } catch {
       setError('Erreur lors de l\'importation');
     }
   };
@@ -112,7 +112,7 @@ export default function ParentElevePage() {
       setSelectedParentView(parentId);
       const response = await parentEleveService.getParentWithEnfants(parentId);
       setParentDetails(response.data);
-    } catch (error) {
+    } catch {
       setError('Erreur lors du chargement des détails du parent');
     }
   };
@@ -122,7 +122,7 @@ export default function ParentElevePage() {
       setSelectedEleveView(eleveId);
       const response = await parentEleveService.getParentsByEleve(eleveId);
       setEleveParents(response.data || []);
-    } catch (error) {
+    } catch {
       setError('Erreur lors du chargement des parents de l\'élève');
       setEleveParents([]);
     }

@@ -72,8 +72,8 @@ export default function NotesPage() {
         cours: coursRes.data?.length || 0,
         classes: classesRes.data?.length || 0
       });
-    } catch (error) {
-      console.error('Erreur chargement:', error);
+    } catch (err) {
+      console.error('Erreur chargement:', err);
       setError('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
@@ -107,8 +107,8 @@ export default function NotesPage() {
       }
       loadData();
       closeModal();
-    } catch (error) {
-      setError(error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erreur lors de l\'enregistrement');
     }
   };
 
@@ -119,7 +119,7 @@ export default function NotesPage() {
       await noteService.deleteNote(id);
       setSuccess('Note supprimée avec succès');
       loadData();
-    } catch (error) {
+    } catch {
       setError('Erreur lors de la suppression');
     }
   };
