@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ecoleService } from '../../services/ecoleService';
 import { 
   HomeIcon, 
   UserGroupIcon, 
@@ -28,12 +29,34 @@ const navigation = [
 
 export default function Sidebar() {
   const location = useLocation();
+  const [ecoleInfo, setEcoleInfo] = useState(null);
+
+  useEffect(() => {
+    loadEcoleInfo();
+  }, []);
+
+  const loadEcoleInfo = async () => {
+    try {
+      const response = await ecoleService.getEcoleInfo();
+      if (response.data) {
+        setEcoleInfo(response.data);
+      }
+    } catch {
+      // Si pas d'info école, on utilise le nom par défaut
+      console.log('Aucune information école configurée');
+    }
+  };
+
+  const nomEcole = ecoleInfo?.nomEcole || 'Institut Umoja';
+  const codeEcole = ecoleInfo?.codeEcole || '';
 
   return (
     <div className="w-64 bg-gray-900 text-white h-screen flex flex-col sticky top-0">
       <div className="p-6 border-b border-gray-800 flex-shrink-0">
-        <h1 className="text-2xl font-bold text-blue-400">Institut Umoja</h1>
-        <p className="text-sm text-gray-400 mt-1">Gestion Scolaire</p>
+        <h1 className="text-2xl font-bold text-blue-400">{nomEcole}</h1>
+        <p className="text-sm text-gray-400 mt-1">
+          {codeEcole ? `${codeEcole} - Gestion Scolaire` : 'Gestion Scolaire'}
+        </p>
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -58,7 +81,7 @@ export default function Sidebar() {
 
       <div className="p-4 border-t border-gray-800 flex-shrink-0">
         <div className="text-xs text-gray-400 text-center">
-          © 2025 Institut Umoja
+          © 2025 {nomEcole}
         </div>
       </div>
     </div>

@@ -381,7 +381,7 @@ export default function NotesPage() {
                       <td className="px-6 py-4">{note.coursNom || coursItem?.nomCours || 'N/A'}</td>
                       <td className="px-6 py-4 text-center">
                         <span className={`px-3 py-1 rounded-full font-bold ${noteColor}`}>
-                          {note.valeur}/20
+                          {note.valeur}/{note.ponderation || coursItem?.ponderation || 20}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center font-semibold">
@@ -467,25 +467,48 @@ export default function NotesPage() {
                     <option value="">Sélectionner un cours</option>
                     {cours.map((coursItem) => (
                       <option key={coursItem.id} value={coursItem.id}>
-                        {coursItem.nomCours}
+                        {coursItem.nomCours} (/{coursItem.ponderation})
                       </option>
                     ))}
                   </select>
+                  {formData.coursId && (() => {
+                    const selectedCours = cours.find(c => c.id === parseInt(formData.coursId));
+                    return selectedCours && (
+                      <p className="text-sm text-blue-600 mt-1 font-medium">
+                        Pondération: {selectedCours.ponderation} points
+                      </p>
+                    );
+                  })()}
                 </div>
 
                 <div>
-                  <label className="label">Note (sur 20) *</label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    max="20"
-                    step="0.1"
-                    value={formData.valeur}
-                    onChange={(e) => setFormData({ ...formData, valeur: e.target.value })}
-                    className="input"
-                    placeholder="Ex: 15.5"
-                  />
+                  {(() => {
+                    const selectedCours = cours.find(c => c.id === parseInt(formData.coursId));
+                    const maxPoints = selectedCours?.ponderation || 20;
+                    return (
+                      <>
+                        <label className="label">
+                          Note {formData.coursId ? `(sur ${maxPoints})` : ''} *
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          max={maxPoints}
+                          step="0.5"
+                          value={formData.valeur}
+                          onChange={(e) => setFormData({ ...formData, valeur: e.target.value })}
+                          className="input"
+                          placeholder={`Ex: ${(maxPoints * 0.75).toFixed(1)}`}
+                        />
+                        {formData.coursId && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Entrez une note entre 0 et {maxPoints}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
 
                 <div>

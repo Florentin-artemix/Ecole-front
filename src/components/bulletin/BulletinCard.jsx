@@ -126,14 +126,14 @@ export default function BulletinCard({ bulletin }) {
                   <th className="border border-gray-600 px-4 py-3 text-left font-bold">N°</th>
                   <th className="border border-gray-600 px-4 py-3 text-left font-bold">Branche/Cours</th>
                   <th className="border border-gray-600 px-4 py-3 text-center font-bold">Pondération</th>
-                  <th className="border border-gray-600 px-4 py-3 text-center font-bold">Note/20</th>
-                  <th className="border border-gray-600 px-4 py-3 text-center font-bold">Total Points</th>
-                  <th className="border border-gray-600 px-4 py-3 text-center font-bold">Max Possible</th>
+                  <th className="border border-gray-600 px-4 py-3 text-center font-bold">Note Obtenue</th>
                 </tr>
               </thead>
               <tbody>
                 {bulletin.notes && bulletin.notes.map((note, index) => {
-                  const noteColor = note.valeur >= 10 ? 'text-green-700' : 'text-red-700';
+                  // Calculer le pourcentage pour la couleur
+                  const pourcentage = (note.valeur / note.ponderation) * 100;
+                  const noteColor = pourcentage >= 50 ? 'text-green-700' : 'text-red-700';
                   
                   return (
                     <tr key={note.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
@@ -141,13 +141,7 @@ export default function BulletinCard({ bulletin }) {
                       <td className="border border-gray-300 px-4 py-3 font-medium">{note.coursNom}</td>
                       <td className="border border-gray-300 px-4 py-3 text-center font-semibold">{note.ponderation}</td>
                       <td className={`border border-gray-300 px-4 py-3 text-center font-bold text-lg ${noteColor}`}>
-                        {note.valeur.toFixed(1)}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-3 text-center font-bold text-2xl text-gray-800">
-                        —
-                      </td>
-                      <td className="border border-gray-300 px-4 py-3 text-center font-bold text-2xl text-gray-800">
-                        —
+                        {note.valeur.toFixed(1)}/{note.ponderation}
                       </td>
                     </tr>
                   );
@@ -155,14 +149,14 @@ export default function BulletinCard({ bulletin }) {
 
                 {/* Ligne de totaux */}
                 <tr className="bg-blue-50 font-bold border-t-4 border-blue-900">
-                  <td colSpan="4" className="border border-gray-300 px-4 py-4 text-right text-lg">
+                  <td colSpan="2" className="border border-gray-300 px-4 py-4 text-right text-lg">
                     TOTAL GÉNÉRAL
                   </td>
-                  <td className="border border-gray-300 px-4 py-4 text-center text-xl text-blue-900">
-                    {bulletin.totalGeneral?.toFixed(1)}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-4 text-center text-lg text-gray-700">
+                  <td className="border border-gray-300 px-4 py-4 text-center text-xl text-gray-900 font-bold shadow-md bg-white">
                     {bulletin.maximumGeneral}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-4 text-center text-2xl text-blue-900 font-bold shadow-lg bg-white">
+                    {bulletin.totalGeneral?.toFixed(1)}
                   </td>
                 </tr>
               </tbody>

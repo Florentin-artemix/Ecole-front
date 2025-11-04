@@ -246,7 +246,7 @@ export default function ParentElevePage() {
                   : `Élève #${eleve.id}`);
               return (
                 <option key={eleve.id} value={eleve.id}>
-                  {nom} - {eleve.classe}
+                  {nom} - {eleve.classeNom || 'Sans classe'}
                 </option>
               );
             })}
@@ -268,7 +268,7 @@ export default function ParentElevePage() {
                     Élève: {eleveNom}
                   </h3>
                   <p className="text-sm text-gray-600 mb-4">
-                    Classe: {eleve?.classe} | École: {typeof eleve?.ecole === 'object' ? eleve?.ecole?.nomEcole : eleve?.ecole}
+                    Classe: {eleve?.classeNom || 'N/A'} | École: {typeof eleve?.ecole === 'object' ? eleve?.ecole?.nomEcole : eleve?.ecole}
                   </p>
                 </>
               );
@@ -331,27 +331,24 @@ export default function ParentElevePage() {
             <tbody className="divide-y divide-gray-200">
               {relations.map((relation, index) => {
                 const parent = parents.find(p => p.id === relation.parentId);
-                const eleve = eleves.find(e => e.id === relation.eleveId);
-                const eleveNom = eleve ? (eleve.nomComplet || 
-                  (eleve.nom && eleve.postnom && eleve.prenom 
-                    ? `${eleve.nom} ${eleve.postnom} ${eleve.prenom}` 
-                    : `Élève #${eleve.id}`)) : 'Inconnu';
+                // Utiliser les données du backend directement depuis relation
+                const eleveNom = relation.eleveNom || 'Inconnu';
 
                 return (
                   <tr key={relation.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-6 py-4 font-medium text-gray-900">
-                      {parent?.nomComplet || 'Inconnu'}
+                      {relation.parentNom || parent?.nomComplet || 'Inconnu'}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <div>{parent?.telephone}</div>
-                      <div className="text-gray-500">{parent?.email}</div>
+                      <div>{relation.parentTelephone || parent?.telephone}</div>
+                      <div className="text-gray-500">{relation.parentEmail || parent?.email}</div>
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {eleveNom}
                     </td>
                     <td className="px-6 py-4">
                       <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                        {eleve?.classe || 'N/A'}
+                        {relation.eleveClasse || 'N/A'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
