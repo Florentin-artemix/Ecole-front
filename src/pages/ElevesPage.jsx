@@ -158,6 +158,19 @@ export default function ElevesPage() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet élève ?')) return;
+
+    try {
+      await eleveService.deleteEleve(id);
+      setSuccess('Élève supprimé avec succès');
+      loadEleves();
+    } catch (err) {
+      setError('Erreur lors de la suppression');
+      console.error('Erreur suppression:', err);
+    }
+  };
+
   const openModal = (eleve = null) => {
     if (eleve) {
       setEditingEleve(eleve);

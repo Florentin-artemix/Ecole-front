@@ -48,6 +48,7 @@ export default function ClassesPage() {
       closeModal();
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur lors de l\'enregistrement');
+      console.error('Erreur enregistrement:', err);
     }
   };
 
@@ -58,8 +59,9 @@ export default function ClassesPage() {
       await classeService.deleteClasse(id);
       setSuccess('Classe supprimée avec succès');
       loadClasses();
-    } catch {
+    } catch (err) {
       setError('Erreur lors de la suppression');
+      console.error('Erreur suppression:', err);
     }
   };
 

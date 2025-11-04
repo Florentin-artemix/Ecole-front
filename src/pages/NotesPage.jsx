@@ -142,6 +142,7 @@ export default function NotesPage() {
           successCount++;
         } catch (err) {
           errorCount++;
+          console.error('Erreur import note:', err);
         }
       }
 
@@ -151,8 +152,9 @@ export default function NotesPage() {
       } else {
         setError('Aucune note n\'a pu être importée');
       }
-    } catch (error) {
+    } catch (err) {
       setError('Erreur lors de l\'importation');
+      console.error('Erreur import:', err);
     }
   };
 
