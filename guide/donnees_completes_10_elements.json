@@ -189,6 +189,9 @@
       "lieuNaissance": "Bukavu",
       "numeroPermanent": "EP-2008-001",
       "classeId": 1,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -202,6 +205,9 @@
       "lieuNaissance": "Goma",
       "numeroPermanent": "EP-2008-002",
       "classeId": 1,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -215,6 +221,9 @@
       "lieuNaissance": "Lubumbashi",
       "numeroPermanent": "EP-2007-001",
       "classeId": 2,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -228,6 +237,9 @@
       "lieuNaissance": "Bukavu",
       "numeroPermanent": "EP-2007-002",
       "classeId": 2,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -241,6 +253,9 @@
       "lieuNaissance": "Kinshasa",
       "numeroPermanent": "EP-2006-001",
       "classeId": 3,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -254,6 +269,9 @@
       "lieuNaissance": "Kolwezi",
       "numeroPermanent": "EP-2006-002",
       "classeId": 3,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -267,6 +285,9 @@
       "lieuNaissance": "Bukavu",
       "numeroPermanent": "EP-2005-001",
       "classeId": 4,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -280,6 +301,9 @@
       "lieuNaissance": "Goma",
       "numeroPermanent": "EP-2005-002",
       "classeId": 4,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -293,6 +317,9 @@
       "lieuNaissance": "Bukavu",
       "numeroPermanent": "EP-2004-001",
       "classeId": 5,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -306,6 +333,9 @@
       "lieuNaissance": "Kinshasa",
       "numeroPermanent": "EP-2004-002",
       "classeId": 5,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -319,6 +349,9 @@
       "lieuNaissance": "Lubumbashi",
       "numeroPermanent": "EP-2003-001",
       "classeId": 6,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }
@@ -332,6 +365,9 @@
       "lieuNaissance": "Bukavu",
       "numeroPermanent": "EP-2003-002",
       "classeId": 6,
+      "code": "EP1234",
+      "ville": "Bukavu",
+      "commune_territoire": "Ibanda",
       "ecole": {
         "id": 1
       }

@@ -14,6 +14,7 @@ export default function ElevesPage() {
   const [filteredEleves, setFilteredEleves] = useState([]);
   const [ecoles, setEcoles] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [ecoleInfo, setEcoleInfo] = useState(null);
   const [selectedClasse, setSelectedClasse] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,11 +32,26 @@ export default function ElevesPage() {
     numeroPermanent: '',
     classeId: '',
     ecoleId: '',
+    code: '',
+    ville: '',
+    commune_territoire: '',
   });
 
   useEffect(() => {
     loadData();
+    loadEcoleInfo();
   }, []);
+
+  const loadEcoleInfo = async () => {
+    try {
+      const response = await ecoleService.getEcoleInfo();
+      if (response.data) {
+        setEcoleInfo(response.data);
+      }
+    } catch {
+      console.log('Aucune information école configurée');
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -142,18 +158,6 @@ export default function ElevesPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet élève ?')) return;
-
-    try {
-      await eleveService.deleteEleve(id);
-      setSuccess('Élève supprimé avec succès');
-      loadEleves();
-    } catch {
-      setError('Erreur lors de la suppression');
-    }
-  };
-
   const openModal = (eleve = null) => {
     if (eleve) {
       setEditingEleve(eleve);
@@ -163,9 +167,14 @@ export default function ElevesPage() {
         ...eleve,
         classeId: eleve.classeId || '',
         ecoleId: ecoleId || '',
+        code: eleve.code || '',
+        ville: eleve.ville || '',
+        commune_territoire: eleve.commune_territoire || '',
       });
     } else {
       setEditingEleve(null);
+      // Pré-remplir avec les infos de l'école si disponibles
+      const defaultEcoleId = ecoles.length > 0 ? ecoles[0].id : (ecoleInfo?.id || '');
       setFormData({
         nomComplet: '',
         nom: '',
@@ -176,7 +185,10 @@ export default function ElevesPage() {
         lieuNaissance: '',
         numeroPermanent: '',
         classeId: classes.length > 0 ? classes[0].id : '',
-        ecoleId: ecoles.length > 0 ? ecoles[0].id : '',
+        ecoleId: defaultEcoleId,
+        code: ecoleInfo?.codeEcole || '',
+        ville: ecoleInfo?.ville || '',
+        commune_territoire: ecoleInfo?.commune_territoire || '',
       });
     }
     setShowModal(true);
@@ -196,6 +208,9 @@ export default function ElevesPage() {
       numeroPermanent: '',
       classeId: '',
       ecoleId: '',
+      code: '',
+      ville: '',
+      commune_territoire: '',
     });
   };
 
@@ -453,7 +468,66 @@ export default function ElevesPage() {
                     </div>
                   )}
                 </div>
+
+                <div>
+                  <label className="label">Code École *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.code}
+                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                    className="input"
+                    placeholder="Ex: EP1234"
+                  />
+                  {ecoleInfo && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      💡 Valeur par défaut de l'école: {ecoleInfo.codeEcole}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="label">Ville *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.ville}
+                    onChange={(e) => setFormData({ ...formData, ville: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Bukavu"
+                  />
+                  {ecoleInfo && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      💡 Valeur par défaut de l'école: {ecoleInfo.ville}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="label">Commune/Territoire *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.commune_territoire}
+                    onChange={(e) => setFormData({ ...formData, commune_territoire: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Ibanda"
+                  />
+                  {ecoleInfo && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      💡 Valeur par défaut de l'école: {ecoleInfo.commune_territoire}
+                    </p>
+                  )}
+                </div>
               </div>
+
+              {ecoleInfo && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    ℹ️ <strong>Info:</strong> Les champs Code, Ville et Commune/Territoire sont pré-remplis automatiquement avec les informations de l'école "{ecoleInfo.nomEcole}". Vous pouvez les modifier si nécessaire.
+                  </p>
+                </div>
+              )}
             </form>
 
             <div className="flex gap-4 justify-end p-6 border-t bg-gray-50 flex-shrink-0">
