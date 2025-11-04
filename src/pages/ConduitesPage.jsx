@@ -53,8 +53,9 @@ export default function ConduitesPage() {
       setConduites(conduitesRes.data || []);
       setEleves(elevesRes.data || []);
       setProfesseurs((profsRes.data || []).filter(u => u.role === 'PROFESSEUR'));
-    } catch (error) {
+    } catch (err) {
       setError('Erreur lors du chargement des données');
+      console.error('Erreur chargement:', err);
     } finally {
       setLoading(false);
     }
@@ -80,8 +81,9 @@ export default function ConduitesPage() {
       }
       loadData();
       closeModal();
-    } catch (error) {
-      setError(error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erreur lors de l\'enregistrement');
+      console.error('Erreur enregistrement:', err);
     }
   };
 
@@ -92,8 +94,9 @@ export default function ConduitesPage() {
       await conduiteService.deleteConduite(id);
       setSuccess('Conduite supprimée avec succès');
       loadData();
-    } catch (error) {
+    } catch (err) {
       setError('Erreur lors de la suppression');
+      console.error('Erreur suppression:', err);
     }
   };
 
@@ -109,6 +112,7 @@ export default function ConduitesPage() {
           successCount++;
         } catch (err) {
           errorCount++;
+          console.error('Erreur import item:', err);
         }
       }
 
@@ -118,8 +122,9 @@ export default function ConduitesPage() {
       } else {
         setError('Aucune conduite n\'a pu être importée');
       }
-    } catch (error) {
+    } catch (err) {
       setError('Erreur lors de l\'importation');
+      console.error('Erreur import:', err);
     }
   };
 
@@ -164,8 +169,9 @@ export default function ConduitesPage() {
       const response = await conduiteService.getConduiteCalcul(eleveId, periode);
       setConduiteCalcul(response.data);
       setShowCalculModal(true);
-    } catch (error) {
+    } catch (err) {
       setError('Erreur lors du calcul de la conduite');
+      console.error('Erreur calcul:', err);
     } finally {
       setLoading(false);
     }
