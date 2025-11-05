@@ -46,7 +46,7 @@ export default function SuiviPaiementPage() {
           if (derogation) {
             derogationsMap[eleve.id] = derogation;
           }
-        } catch (err) {
+        } catch {
           // Ignorer les erreurs (élève sans dérogation)
         }
       }
