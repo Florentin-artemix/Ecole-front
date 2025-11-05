@@ -131,3 +131,61 @@ export const CONDUITE_COLORS = {
   'Médiocre': 'bg-red-100 text-red-800',
   'Mauvais': 'bg-red-200 text-red-900',
 };
+
+// ========================
+// ÉNUMÉRATION: STATUT PAIEMENT
+// ========================
+export const STATUT_PAIEMENT_ENUM = {
+  NON_PAYE: 'NON_PAYE',
+  PAIEMENT_PARTIEL: 'PAIEMENT_PARTIEL',
+  PAYE_COMPLET: 'PAYE_COMPLET',
+};
+
+export const STATUT_PAIEMENT_LABELS = {
+  NON_PAYE: 'Non payé',
+  PAIEMENT_PARTIEL: 'Paiement partiel',
+  PAYE_COMPLET: 'Payé complet',
+};
+
+export const STATUT_PAIEMENT_COLORS = {
+  NON_PAYE: 'bg-red-100 text-red-800 border-red-200',
+  PAIEMENT_PARTIEL: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  PAYE_COMPLET: 'bg-green-100 text-green-800 border-green-200',
+};
+
+export const STATUT_PAIEMENT_OPTIONS = [
+  { value: STATUT_PAIEMENT_ENUM.NON_PAYE, label: STATUT_PAIEMENT_LABELS.NON_PAYE },
+  { value: STATUT_PAIEMENT_ENUM.PAIEMENT_PARTIEL, label: STATUT_PAIEMENT_LABELS.PAIEMENT_PARTIEL },
+  { value: STATUT_PAIEMENT_ENUM.PAYE_COMPLET, label: STATUT_PAIEMENT_LABELS.PAYE_COMPLET },
+];
+
+// ========================
+// ÉNUMÉRATION: STATUT DÉROGATION
+// ========================
+export const STATUT_DEROGATION_ENUM = {
+  EN_ATTENTE: 'EN_ATTENTE',
+  ACCEPTEE: 'ACCEPTEE',
+  REFUSEE: 'REFUSEE',
+  EXPIREE: 'EXPIREE',
+};
+
+export const STATUT_DEROGATION_LABELS = {
+  EN_ATTENTE: 'En attente',
+  ACCEPTEE: 'Acceptée',
+  REFUSEE: 'Refusée',
+  EXPIREE: 'Expirée',
+};
+
+export const STATUT_DEROGATION_COLORS = {
+  EN_ATTENTE: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  ACCEPTEE: 'bg-green-100 text-green-800 border-green-200',
+  REFUSEE: 'bg-red-100 text-red-800 border-red-200',
+  EXPIREE: 'bg-gray-100 text-gray-800 border-gray-200',
+};
+
+export const STATUT_DEROGATION_OPTIONS = [
+  { value: STATUT_DEROGATION_ENUM.EN_ATTENTE, label: STATUT_DEROGATION_LABELS.EN_ATTENTE },
+  { value: STATUT_DEROGATION_ENUM.ACCEPTEE, label: STATUT_DEROGATION_LABELS.ACCEPTEE },
+  { value: STATUT_DEROGATION_ENUM.REFUSEE, label: STATUT_DEROGATION_LABELS.REFUSEE },
+  { value: STATUT_DEROGATION_ENUM.EXPIREE, label: STATUT_DEROGATION_LABELS.EXPIREE },
+];

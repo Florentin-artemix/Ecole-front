@@ -11,7 +11,11 @@ import {
   UserPlusIcon,
   BuildingOffice2Icon,
   RectangleGroupIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  BanknotesIcon,
+  ReceiptPercentIcon,
+  ChartBarIcon,
+  DocumentCheckIcon
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -25,6 +29,13 @@ const navigation = [
   { name: 'Parent-Élève', to: '/parent-eleve', icon: UserPlusIcon },
   { name: 'Utilisateurs', to: '/utilisateurs', icon: UsersIcon },
   { name: 'École', to: '/ecole', icon: BuildingOffice2Icon },
+];
+
+const paiementNavigation = [
+  { name: 'Motifs de Paiement', to: '/motifs-paiement', icon: ReceiptPercentIcon },
+  { name: 'Paiements', to: '/paiements', icon: BanknotesIcon },
+  { name: 'Suivi Paiement', to: '/suivi-paiement', icon: ChartBarIcon },
+  { name: 'Dérogations', to: '/derogations', icon: DocumentCheckIcon },
 ];
 
 export default function Sidebar() {
@@ -77,6 +88,30 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Section Paiements */}
+        <div className="pt-4 mt-4 border-t border-gray-700">
+          <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Système de Paiement
+          </div>
+          {paiementNavigation.map((item) => {
+            const isActive = location.pathname === item.to;
+            return (
+              <Link
+                key={item.name}
+                to={item.to}
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-green-600 text-white'
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                }`}
+              >
+                <item.icon className="w-6 h-6 mr-3 flex-shrink-0" />
+                <span className="font-medium">{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       <div className="p-4 border-t border-gray-800 flex-shrink-0">

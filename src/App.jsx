@@ -11,6 +11,10 @@ import UtilisateursPage from './pages/UtilisateursPage';
 import ParentElevePage from './pages/ParentElevePage';
 import EcolePage from './pages/EcolePage';
 import ConduitesPage from './pages/ConduitesPage';
+import MotifsPaiementPage from './pages/MotifsPaiementPage';
+import PaiementsPage from './pages/PaiementsPage';
+import SuiviPaiementPage from './pages/SuiviPaiementPage';
+import DerogationsPage from './pages/DerogationsPage';
 
 function App() {
   return (
@@ -28,6 +32,10 @@ function App() {
           <Route path="parent-eleve" element={<ParentElevePage />} />
           <Route path="conduites" element={<ConduitesPage />} />
           <Route path="ecole" element={<EcolePage />} />
+          <Route path="motifs-paiement" element={<MotifsPaiementPage />} />
+          <Route path="paiements" element={<PaiementsPage />} />
+          <Route path="suivi-paiement" element={<SuiviPaiementPage />} />
+          <Route path="derogations" element={<DerogationsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

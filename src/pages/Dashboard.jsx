@@ -31,12 +31,12 @@ export default function Dashboard() {
 
   const loadStats = async () => {
     try {
-      const [elevesRes, coursRes, notesRes, usersRes, conduitesRes] = await Promise.all([
+      // Charger les statistiques de base (sans conduites pour l'instant)
+      const [elevesRes, coursRes, notesRes, usersRes] = await Promise.all([
         eleveService.getAllEleves(),
         coursService.getAllCours(),
         noteService.getAllNotes(),
         utilisateurService.getAllUtilisateurs(),
-        conduiteService.getAllConduites(),
       ]);
 
       setStats({
@@ -45,7 +45,16 @@ export default function Dashboard() {
         notes: notesRes.data?.length || 0,
         utilisateurs: usersRes.data?.length || 0,
       });
-      setConduites(conduitesRes.data || []);
+
+      // Charger les conduites séparément (peut échouer si données invalides)
+      try {
+        const conduitesRes = await conduiteService.getAllConduites();
+        setConduites(conduitesRes.data || []);
+      } catch (conduiteError) {
+        console.error('Erreur lors du chargement des conduites:', conduiteError);
+        console.warn('⚠️ Des conduites ont des valeurs invalides en base. Exécutez: demo/correction_conduites_invalides.sql');
+        setConduites([]);
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error);
     } finally {
